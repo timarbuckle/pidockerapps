@@ -1,0 +1,35 @@
+version: '3.3'
+
+networks:
+  pihole-network:
+    external: true
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8080:80"
+    environment:
+      TZ: 'America/New_York'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    restart: unless-stopped
+    networks:
+      - pihole-network
+
+  ghost:
+    image: ghost:latest
+    container_name: ghost
+    environment:
+      url: "http://pi.local"
+    ports:
+      - "80:2368"
+    volumes:
+      - ./ghost:/var/lib/ghost/content
+    restart: unless-stopped
+    networks:
+      - pihole-network
